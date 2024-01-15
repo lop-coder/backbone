@@ -1,0 +1,8 @@
+build/
+compile/
+conan/
+docker/
+docs/
+output/
+script/
+test/
