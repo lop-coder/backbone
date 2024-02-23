@@ -1,0 +1,86 @@
+{
+ "graph_lock": {
+  "nodes": {
+   "0": {
+    "ref": "backbone/3.1.0",
+    "options": "fPIC=True\nshared=True\nwith_app=True\nwith_doc=True\nwith_test=True\ncxxopts:unicode=False\ndoxygen:enable_app=False\ndoxygen:enable_parse=True\ndoxygen:enable_search=True\nfmt:header_only=False\nfmt:shared=False\nfmt:with_fmt_alias=False\nfmt:with_os_api=True\nlibiconv:shared=False\nlibtinyprocess:shared=False\nxapian-core:shared=False\nzlib:shared=False",
+    "requires": [
+     "1",
+     "5",
+     "6",
+     "7",
+     "8"
+    ],
+    "path": "..\\..\\conanfile.py",
+    "context": "host"
+   },
+   "1": {
+    "ref": "doxygen/1.9.4",
+    "options": "enable_app=False\nenable_parse=True\nenable_search=True\nlibiconv:shared=False\nxapian-core:shared=False\nzlib:shared=False",
+    "package_id": "97b1d706abc58b6e57549e40a5608035fa4c8e41",
+    "prev": "0",
+    "requires": [
+     "2",
+     "3",
+     "4"
+    ],
+    "context": "host"
+   },
+   "2": {
+    "ref": "xapian-core/1.4.19",
+    "options": "shared=False\nzlib:shared=False",
+    "package_id": "6acf24cd4adf2df742e006cc0e5f0329e3b6e60b",
+    "prev": "0",
+    "requires": [
+     "3"
+    ],
+    "context": "host"
+   },
+   "3": {
+    "ref": "zlib/1.3.1",
+    "options": "shared=False",
+    "package_id": "d057732059ea44a47760900cb5e4855d2bea8714",
+    "prev": "0",
+    "context": "host"
+   },
+   "4": {
+    "ref": "libiconv/1.17",
+    "options": "shared=False",
+    "package_id": "d057732059ea44a47760900cb5e4855d2bea8714",
+    "prev": "0",
+    "context": "host"
+   },
+   "5": {
+    "ref": "cxxopts/3.1.1",
+    "options": "unicode=False",
+    "package_id": "5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9",
+    "prev": "0",
+    "context": "host"
+   },
+   "6": {
+    "ref": "fmt/10.0.0",
+    "options": "header_only=False\nshared=False\nwith_fmt_alias=False\nwith_os_api=True",
+    "package_id": "8ed2451fe8e6a2dd1b2f8bac3c035717ff9ddfa8",
+    "prev": "0",
+    "context": "host"
+   },
+   "7": {
+    "ref": "nlohmann_json/3.11.2",
+    "options": "",
+    "package_id": "5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9",
+    "prev": "0",
+    "context": "host"
+   },
+   "8": {
+    "ref": "libtinyprocess/2.0.4",
+    "options": "shared=False",
+    "package_id": "01edd76db8e16db9b38c3cca44ec466a9444c388",
+    "prev": "0",
+    "context": "host"
+   }
+  },
+  "revisions_enabled": false
+ },
+ "version": "0.4",
+ "profile_host": "[settings]\narch=x86_64\narch_build=x86_64\nbuild_type=Debug\ncompiler=Visual Studio\ncompiler.runtime=MDd\ncompiler.version=16\nos=Windows\nos_build=Windows\n[options]\n[build_requires]\n[env]\nCONAN_CMAKE_TOOLCHAIN_FILE=\"D:/work/src/backbone/extension/build/conan-dependencies/toolchain.cmake\""
+}

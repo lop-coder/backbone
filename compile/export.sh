@@ -1,9 +1,12 @@
 #!/bin/bash
 ######################################################################################
-REP_DIR=build
+REP_DIR=extension
+if [ $# -ge 1 ]; then
+    REP_DIR=$1
+fi
 echo ${REP_DIR}
 ######################################################################################
-cd ${REP_DIR}
+cd ${REP_DIR}/build
 conan export-pkg ..   -f
 version=`cat ../conanfile.py|grep version`
 version=${version##*=}

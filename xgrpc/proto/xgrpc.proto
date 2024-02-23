@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "backbone.rpc";
+option java_outer_classname = "XgRPCProto";
+option objc_class_prefix = "XgRPC";
+
+package backbonerpc;
+
+service XgRPC {
+  rpc Call(Request) returns (Response) {}
+  rpc Pull(Request) returns (stream Response) {}
+  rpc Push(stream Request) returns (Response) {}
+  rpc Bidi(stream Request) returns (stream Response) {}
+
+  rpc Subscribe(Request) returns (stream Response) {}
+  rpc Publish(stream Request) returns (Response) {}
+}
+
+message Request {
+  string id = 1;
+  string type = 2;
+  bytes data = 3;
+}
+
+message Response {
+  string id = 1;
+  string type = 2;
+  bytes data = 3;
+}

@@ -10,4 +10,4 @@ if [ $# -eq 1 ]; then
 	fi
 fi
 ####################################################################################
-./compile/mk.sh src ${BUILD_TYPE}
+./compile/mk.sh extension ${BUILD_TYPE}

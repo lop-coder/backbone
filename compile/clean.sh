@@ -1,5 +1,8 @@
 #!/bin/bash
-REP=.
+REP=extension
+if [ $# -ge 1 ]; then
+    REP=$1
+fi
 rm -rf  output
 rm -rf ${REP}/build
 rm -rf ${REP}/app/build
