@@ -197,63 +197,6 @@ macro(ADD_FILE_RECURSIVELY root_dir)
   endforeach()
 endmacro()
 
-macro(ODB_GENERATE header schema)
-  set(cxxFile
-      "${CMAKE_SOURCE_DIR}/src/local/odbormtype/${header}/${header}ormtype-odb.cxx"
-  )
-  set(hxxFile
-      "${CMAKE_SOURCE_DIR}/src/local/odbormtype/${header}/${header}ormtype-odb.hxx"
-  )
-  set(ixxFile
-      "${CMAKE_SOURCE_DIR}/src/local/odbormtype/${header}/${header}ormtype-odb.ixx"
-  )
-  # SET(sqlFile
-  # "${CMAKE_SOURCE_DIR}/src/local/odbormtype/${header}/${header}ormtype-odb.sql")
-
-  set(ODB_GENERATED_FILES ${cxxFile} ${hxxFile} ${ixxFile})
-
-  set(ODB_SOURCES
-      ${ODB_SOURCES}
-      "${CMAKE_SOURCE_DIR}/src/local/odbormtype/${header}/${header}ormtype-odb.cxx"
-  )
-  set(ODB_SOURCES
-      ${ODB_SOURCES}
-      "${CMAKE_SOURCE_DIR}/src/local/odbormtype/${header}/${header}ormtype-odb.hxx"
-  )
-
-  # set(ODB_SOURCES ${ODB_SOURCES}
-  # "${CMAKE_SOURCE_DIR}/src/local/odbormtype/${header}/${header}ormtype.h")
-  if(NOT EXISTS "${CMAKE_SOURCE_DIR}/src/local/odbormtype/${header}/${header}ormtype-odb.hxx" OR  NOT EXISTS "${CMAKE_SOURCE_DIR}/src/local/odbormtype/${header}/${header}ormtype-odb.cxx" )
-    if(${schema} MATCHES "")
-        execute_process(
-          COMMAND
-          ${CONAN_BIN_DIRS_LIBODB}/odb.exe
-          --std c++11 --database sqlite --generate-query --generate-schema
-          --schema-name ${schema} -I ${CONAN_INCLUDE_DIRS_NLOHMANN_JSON} -I
-          ${CONAN_INCLUDE_DIRS_LIBODB} -I ../../../.. ${header}ormtype.h
-          WORKING_DIRECTORY  ${CMAKE_SOURCE_DIR}/src/local/odbormtype/${header}/
-          )
-    else()
-        execute_process(
-          COMMAND
-          ${CONAN_BIN_DIRS_LIBODB}/odb.exe
-          --std c++11 --database sqlite --generate-query --generate-schema
-           -I ${CONAN_INCLUDE_DIRS_NLOHMANN_JSON} -I
-          ${CONAN_INCLUDE_DIRS_LIBODB} -I ../../../.. ${header}ormtype.h
-          WORKING_DIRECTORY  ${CMAKE_SOURCE_DIR}/src/local/odbormtype/${header}/
-          )
-    endif()
-    endif()
-endmacro()
-
-macro(DO_TEST Target arg1 arg2 result)
-  add_test(test_${arg1}_${arg2} Target ${arg1} ${arg2})
-  set_tests_properties(test_${arg1}_${arg2} PROPERTIES PASS_REGULAR_EXPRESSION
-                                                       ${result})
-endmacro(DO_TEST)
-
-enable_testing()
-
 add_compile_definitions("ISDEBUG=$<CONFIG:Debug>")
 
 if(CMAKE_SYSTEM_NAME MATCHES "Windows")

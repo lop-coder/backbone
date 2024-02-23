@@ -2,36 +2,37 @@
 
 set -e
 ######################################################################################
-REP=backbone
-REP_BUILD_DIR=build
+REP=extension
+REP_BUILD_DIR=extension/build
 ######################################################################################
 SYSTEM_TYPE=windows
 BUILD_TYPE=Release
 ARCH_TYPE=x86_64
 ######################################################################################
 if [ $# -ge 1 ]; then
-	if [[  $1 = "linux" ||  $1 = "Linux" ]]; then
+        REP=$1
+        REP_BUILD_DIR=${REP}/build
+fi
+if [ $# -ge 2 ]; then
+	if [[  $2 = "linux" ||  $2 = "Linux" ]]; then
 		SYSTEM_TYPE=linux
 	else
 		SYSTEM_TYPE=windows
 	fi
 fi
-if [ $# -ge 2 ]; then
-	if [[  $2 = "debug" ||  $2 = "Debug" ]]; then
+if [ $# -ge 3 ]; then
+	if [[  $3 = "debug" ||  $3 = "Debug" ]]; then
 		BUILD_TYPE=Debug
 	else
 		BUILD_TYPE=Release
 	fi
 fi
-if [ $# -ge 3 ]; then
-	ARCH_TYPE=$3
-fi
 if [ $# -ge 4 ]; then
-	REP=$4
+	ARCH_TYPE=$4
 fi
-#if [ $# -ge 5 ]; then
-	#REP_BUILD_DIR=$5
-#fi
+if [ $# -ge 5 ]; then
+        REP_BUILD_DIR=$5
+fi
 ######################################################################################
 if [[  ${SYSTEM_TYPE} = "linux" ]]; then
 	if [[  ${BUILD_TYPE} = "Release" ]]; then
@@ -76,6 +77,12 @@ else
 	if [ -f bin/${REP}.exe ];then
 		rm -rf bin/${REP}.exe
 	fi
+	if [ -f ${BUILD_TYPE}/${REP}.dll ];then
+		rm -rf bin/${REP}.dll
+	fi
+        if [ -f ${BUILD_TYPE}/${REP}.exe ];then
+		rm -rf bin/${REP}.exe
+	fi
 	rm -rf bin/Test.exe
 fi
 ######################################################################################
@@ -84,7 +91,7 @@ rm -rf error.log
 ######################################################################################
 echo -e ""
 echo -e "  Install Dependencies ..."
-conan install .. -pr=../conan/${PR} --build=missing  1>>compile.log 
+conan install .. -pr=../../conan/${PR} --build=missing  1>>compile.log 
 ######################################################################################
 if [ -d install ]; then
    rm -rf install
@@ -114,7 +121,7 @@ if [[  ${SYSTEM_TYPE} = "linux" ]]; then
 		exit -1
 	fi
 else
-	if [[ ! -f bin/${REP}.dll && ! -f bin/${REP}.exe ]];then
+	if [[ ! -f bin/${REP}.dll && ! -f bin/${REP}.exe && ! -f ${BUILD_TYPE}/${REP}.dll && ! -f ${BUILD_TYPE}/${REP}.exe ]];then
 		echo -e ""
 		echo -e "=========Error,the file ${REP}.dll or ${REP}.exe does not exist========"
 		exit -1
@@ -126,7 +133,7 @@ fi
 #if [[  -f error.log ]];then
 #	cat error.txt | while read line
 #	do
-#	    echo $line
+#	    echo $line
 #	done
 #fi
 #echo "  Check the compilation log end ..."
@@ -139,7 +146,7 @@ if [[  ${SYSTEM_TYPE} = "linux" ]]; then
 		../bin/Test
 		cd ..
 	else
-		echo -e "=========Error bin/Test does not exist========"
+		echo -e "========= bin/Test does not exist========"
 	fi
 	echo -e ""
 	echo -e "  Extension Test ... "
@@ -162,7 +169,7 @@ else
 		./Test.exe
 		cd ..
 	else
-		echo -e "=========Error bin/Test.exe does not exist========"
+		echo -e "========= bin/Test.exe does not exist========"
 	fi
 	echo -e ""
 	echo -e "  Extension Test ... "
