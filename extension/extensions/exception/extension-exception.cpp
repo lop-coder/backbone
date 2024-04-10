@@ -55,31 +55,31 @@ TryCatchWarpper::TryCatchWarpper(std::exception const& exc) {
   try {
     std::string type_name = typeid(exc).name();
     if (type_name == typeid(std::bad_alloc).name()) {
-      _except._errorCode = ErrOutOfMemory;
-      _except._errorMsg =
-          Exception::errorCode2What(_except._errorCode, exc.what());
+      _mexcept._errorCode = ErrOutOfMemory;
+      _mexcept._errorMsg =
+          Exception::errorCode2What(_mexcept._errorCode, exc.what());
 
     } else if (type_name == typeid(std::bad_typeid).name()) {
-      _except._errorCode = ErrBadTypeid;
-      _except._errorMsg =
-          Exception::errorCode2What(_except._errorCode, exc.what());
+      _mexcept._errorCode = ErrBadTypeid;
+      _mexcept._errorMsg =
+          Exception::errorCode2What(_mexcept._errorCode, exc.what());
 
     } else {
       auto iter = TryCatchWarpper::_tryCatchWarpperHandler.find(type_name);
       if (iter != TryCatchWarpper::_tryCatchWarpperHandler.end()) {
         if (iter->second) {
-          iter->second(exc, _except);
+          iter->second(exc, _mexcept);
         }
       } else {
-        _except._errorCode = ErrUnknown;
-        _except._errorMsg =
-            Exception::errorCode2What(_except._errorCode, exc.what());
+        _mexcept._errorCode = ErrUnknown;
+        _mexcept._errorMsg =
+            Exception::errorCode2What(_mexcept._errorCode, exc.what());
       }
     }
   } catch (std::bad_typeid const& e) {
-    _except._errorCode = ErrUnknown;
-    _except._errorMsg =
-        Exception::errorCode2What(_except._errorCode, exc.what());
+    _mexcept._errorCode = ErrUnknown;
+    _mexcept._errorMsg =
+        Exception::errorCode2What(_mexcept._errorCode, exc.what());
   }
 }
 
