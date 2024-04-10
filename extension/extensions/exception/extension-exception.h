@@ -1,4 +1,7 @@
 #pragma once
+#ifndef __EXCEPTON_H__
+#define __EXCEPTON_H__
+
 #include <functional>
 #include <iostream>
 #include <map>
@@ -33,13 +36,15 @@ class Exception : public std::exception {
 class TryCatchWarpper {
  public:
   TryCatchWarpper(std::exception const& exc);
-  Exception _except;
   bool addTryCatchWarpperHandler(
       const std::string& catchName,
       std::function<bool(std::exception const&, Exception&)> func);
+  Exception _mexcept;
 
  private:
   static std::map<std::string,
                   std::function<bool(std::exception const&, Exception&)>>
       _tryCatchWarpperHandler;
 };
+
+#endif
