@@ -34,6 +34,21 @@ include_directories(${fmt_INCLUDE_DIR})
 find_package(nlohmann_json REQUIRED)
 include_directories(${nlohmann_json_INCLUDE_DIRS})
 
+# cxxopts
+find_package(cxxopts REQUIRED)
+include_directories(${cxxopts_INCLUDE_DIR})
+
+# nlohmann_json_schema_validator
+find_package(nlohmann_json_schema_validator REQUIRED)
+include_directories(${nlohmann_json_schema_validator_INCLUDE_DIR})
+
+# hwinfo
+find_package(hwinfo REQUIRED)
+include_directories(${hwinfo_INCLUDE_DIR})
+
+# HTTPS_DLL_EXPORTS
+add_compile_definitions(HTTPS_DLL_EXPORTS)
+
 # LEAK_DETECTOR
 #set (LEAK_DETECTOR_CHECK 10)
 if(LEAK_DETECTOR_CHECK)
@@ -60,8 +75,6 @@ link_directories(${VLD_PATH}/lib/Win64)
 endif()
 
 # 指定依赖库
-set(TARGET_LINK_LIBS ${CONAN_LIBS})
-
 if(LEAK_DETECTOR_CHECK)
 set(TARGET_LINK_LIBS
     ${TARGET_LINK_LIBS}
@@ -78,25 +91,29 @@ set(SOURCE ${SOURCE} ${CMAKE_CURRENT_LIST_DIR}/src/httplib.h)
 set(SOURCE ${SOURCE} ${CMAKE_CURRENT_LIST_DIR}/include/https.h)
 
 
-
 # 添加conanfile
 set(SOURCE ${SOURCE} ${CMAKE_CURRENT_SOURCE_DIR}/conanfile.py)
 # 添加config.h
 set(SOURCE ${SOURCE} ${CMAKE_CURRENT_LIST_DIR}/config.h.in)
 
-
-
 # 指定生成对象依赖的源文件
-#add_library(${Target} STATIC ${SOURCE} ${PROTO_SOURCES})
 add_library(${Target} SHARED ${SOURCE})
 
-#add_executable(${Target}-client  ${CMAKE_CURRENT_LIST_DIR}/src/httpc.cpp )
-#add_executable(${Target}-server ${CMAKE_CURRENT_LIST_DIR}/src/https.cpp)
+#
+#add_executable(${Target}-client  ${CMAKE_CURRENT_LIST_DIR}/src/http-client.cpp )
+add_executable(${Target}-server
+    ${CMAKE_CURRENT_LIST_DIR}/src/http-server.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/schema.cpp
+)
 # 指定生成对象的依赖库
-target_link_libraries(${Target} PRIVATE ${TARGET_LINK_LIBS} ${fmt_LIBRARIES}  ${nlohmann_json_LIBRARIES})
+target_link_libraries(${Target} PRIVATE ${cxxopts_LIBRARIES} ${fmt_LIBRARIES}  ${nlohmann_json_LIBRARIES})
 
-#target_link_libraries(${Target}-client PRIVATE ${Target})
-#target_link_libraries(${Target}-server PRIVATE ${Target})
+target_link_libraries(${Target}-server PRIVATE ${Target}
+    ${cxxopts_LIBRARIES}
+    ${fmt_LIBRARIES}
+    ${nlohmann_json_LIBRARIES}
+    ${nlohmann_json_schema_validator_LIBRARIES}
+    ${hwinfo_LIBRARIES})
 # 指定安装路径
 install(
   TARGETS ${Target}

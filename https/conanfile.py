@@ -3,7 +3,7 @@ import platform
 
 
 class httpsConan(ConanFile):
-    requires = ("cxxopts/3.1.1","fmt/10.0.0","nlohmann_json/3.11.2",)
+    requires = ("cxxopts/3.1.1","fmt/10.0.0","nlohmann_json/3.11.3","json-schema-validator/2.3.0","hwinfo/0.0.2")
 
     generators = "cmake_find_package"
     #generators = "cmake_find_package,cmake"
@@ -16,7 +16,7 @@ class httpsConan(ConanFile):
         "with_test": [True, False],
     }
     default_options = {
-        "shared": True,
+        "shared": False,
         "fPIC": True,
         "with_app": True,
         "with_test": False,
@@ -28,7 +28,7 @@ class httpsConan(ConanFile):
     url = "https://github.com/lop-coder/backbone"
     license = "None"
     author = "leo"
-    topics = "C++", "extension", "grpc"
+    topics = "C++", "extension", "http"
 
     def configure(self):
         ...
@@ -66,3 +66,9 @@ class httpsConan(ConanFile):
                     self.copy("*.so*", dst=".", src="lib") # From lib to bin
     def package_info(self):
         self.cpp_info.libs = tools.collect_libs(self)
+    def imports(self):
+        if self.settings.os == "Windows":
+            self.copy("*.dll", dst='dep', src="bin") # From bin to bin
+            self.copy("*.dll", dst='dep', src="lib") # From bin to bin
+        else:
+            self.copy("*.so*", dst=".", src="lib") # From lib to bin

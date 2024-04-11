@@ -96,7 +96,7 @@ bool jsonParseAndSchemaCheck(const std::string& body, json& schema,
                              json& request, json& response, bool need_patch) {
   json_validator validator;  // create validator
   try {
-    LogTrace("jsonParseAndSchemaCheck schema: {}\n", schema.dump());
+    //LogTrace("jsonParseAndSchemaCheck schema: {}\n", schema.dump());
     validator.set_root_schema(schema);  // insert root-schema
     try {
       request = json::parse(body);
@@ -106,8 +106,8 @@ bool jsonParseAndSchemaCheck(const std::string& body, json& schema,
           if (!default_patch.empty()) {
             request = request.patch(default_patch);
           } else {
-            LogError("Need patch but patch is empty schema:{} input:{}",
-                     schema.dump(), request.dump());
+            //LogError("Need patch but patch is empty schema:{} input:{}",
+            //schema.dump(), request.dump());
           }
         }
         return true;
@@ -115,21 +115,21 @@ bool jsonParseAndSchemaCheck(const std::string& body, json& schema,
         std::string msg = "Json validation failed, here is why:";
         msg += e.what();
         response["msg"] = msg;
-        LogWarn(response["msg"].get<std::string>());
+        //LogWarn(response["msg"].get<std::string>());
         return false;
       }
     } catch (const nlohmann::detail::parse_error& e) {
       std::string msg = "Invalid json:\n";
       msg += body;
       response["msg"] = msg;
-      LogWarn(response["msg"].get<std::string>());
+      //LogWarn(response["msg"].get<std::string>());
       return false;
     }
   } catch (const std::exception& e) {
     std::string msg = "Validation of schema failed, here is why: ";
     msg += e.what();
     response["msg"] = msg;
-    LogWarn(response["msg"].get<std::string>());
+    //LogWarn(response["msg"].get<std::string>());
     return false;
   }
 }

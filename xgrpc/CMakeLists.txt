@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.17)
+ cmake_minimum_required(VERSION 3.17)
 # 声明目标文件
 set(Target xgrpc)
 
@@ -36,10 +36,6 @@ message(STATUS "protoc ${Protobuf_PROTOC_EXECUTABLE}")
 #else()
 #  set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
 #endif()
-
-# logger
-find_package(logger REQUIRED)
-include_directories(${logger_INCLUDE_DIR})
 
 # gRPC
 find_package(gRPC REQUIRED)
@@ -122,8 +118,7 @@ add_executable(${Target}-server ${CMAKE_CURRENT_LIST_DIR}/src/main-server.cpp ${
 target_link_libraries(${Target} PRIVATE ${TARGET_LINK_LIBS}
     ${gRPC_grpc++_reflection_DEPENDENCIES}
     ${gRPC_LIBRARIES}
-    ${Protobuf_LIBRARIES}
-	${logger_LIBRARIES})
+    ${Protobuf_LIBRARIES})
 
 target_link_libraries(${Target}-client PRIVATE ${Target})
 target_link_libraries(${Target}-server PRIVATE ${Target})

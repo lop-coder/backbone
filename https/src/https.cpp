@@ -3,8 +3,8 @@
 #include <iostream>
 #include <memory>
 
-#include "https.h"
 #include "httplib.h"
+#include "https.h"
 
 #include <nlohmann/json.hpp>
 //////////////////////////////////////////////////////////////////////
@@ -18,19 +18,17 @@ using nlohmann::json;
 namespace Https {
 class Router {
  public:
-  Router(std::string m, std::string p, routerFunc fn, bool wlist)
+  Router(std::string m, std::string p, routerFunc fn, uint32_t auth = 0)
       : method(std::move(m)),
         path(std::move(p)),
         fn(std::move(fn)),
-        whitelist(wlist){
-
-        };
+        m_authCode(auth){};
   ~Router(){};
 
   std::string method = "";
   std::string path = "";
   routerFunc fn = nullptr;
-  bool whitelist = false;
+  uint32_t m_authCode;
 };
 
 class HttpServerImpl : public HttpSrv {
@@ -41,9 +39,9 @@ class HttpServerImpl : public HttpSrv {
   virtual bool start(const std::string& host, int port) override;
   virtual void stop() override;
   virtual void addRouters(std::string method, std::string path, routerFunc fun,
-                          bool wlist = true) override;
+                          uint32_t auth = 0) override;
   virtual bool status() override;
-  virtual void authentication(bool verifyStatus) override;
+  virtual void authentication(uint32_t auth) override;
 
  protected:
   httplib::Server svr;
@@ -53,11 +51,11 @@ class HttpServerImpl : public HttpSrv {
                                 const httplib::Request& req,
                                 httplib::Response& res,
                                 const httplib::ContentReader& content_reader);
-  bool m_verifyStatus;
+  uint32_t m_auth;
   std::unordered_map<std::string, std::shared_ptr<Router>> m_routers;
 };
 
-HttpServerImpl::HttpServerImpl() : m_verifyStatus(false) {
+HttpServerImpl::HttpServerImpl() : m_auth(0) {
   svr.set_keep_alive_timeout(10);
   svr.set_read_timeout(5, 0);   // 5 seconds
   svr.set_write_timeout(5, 0);  // 5 seconds
@@ -104,19 +102,19 @@ HttpServerImpl::HttpServerImpl() : m_verifyStatus(false) {
   svr.set_logger([](const auto& req, const auto& res) {});
 }
 HttpServerImpl::~HttpServerImpl() {
-stop();
+  stop();
 }
 bool HttpServerImpl::status() {
   return svr.is_running();
 }
 void HttpServerImpl::addRouters(std::string method, std::string path,
-                                routerFunc fun, bool wlist) {
+                                routerFunc fun, uint32_t auth) {
   if (method == "" || path == "" || fun == nullptr) {
     //LogWarn(" Add routers [{} {}] fail!!", method, path);
     return;
   }
   std::shared_ptr<Router> router =
-      std::make_shared<Router>(method, path, fun, wlist);
+      std::make_shared<Router>(method, path, fun, auth);
   std::string key = method + "-" + path;
   if (m_routers.find(key) != m_routers.end()) {
     //LogWarn(" Add routers [{} {}] fail!!", method, path);
@@ -129,6 +127,14 @@ void HttpServerImpl::addRouters(std::string method, std::string path,
   LogTrace("path:{}", router->path);
   LogTrace("#######################################################");
   */
+
+  std::cout << "######################register###########################"
+            << std::endl;
+  std::cout << "method:" << router->method << std::endl;
+  std::cout << "required auth:" << router->m_authCode << std::endl;
+  std::cout << "path:" << router->path << std::endl;
+  std::cout << "#######################################################"
+            << std::endl;
   if (router->method == "GET" || router->method == "HEAD") {
     svr.Get(router->path, [router, this](const httplib::Request& req,
                                          httplib::Response& res) {
@@ -196,10 +202,11 @@ void HttpServerImpl::Handler(std::shared_ptr<Router> router,
 
     bool authenticationFlag = false;
     bool canHandler = false;
-    if (m_verifyStatus) {
+
+    if (router->m_authCode == 0) {
       canHandler = true;
     } else {
-      if (!router->whitelist) {
+      if (router->m_authCode & m_auth) {
         canHandler = true;
       } else {
         authenticationFlag = true;
@@ -216,17 +223,20 @@ void HttpServerImpl::Handler(std::shared_ptr<Router> router,
       LogTrace("##########################end############################");
       */
     } else {
+      json resJson;
       std::string message = "path not found:";
       if (authenticationFlag) {
-        message = "Authentication failed:";
+        message = "Unauthorized access";
+        resJson["code"] = -3;
+      } else {
+        resJson["code"] = -1;
       }
       message += req.method;
       message += " ";
       message += req.path;
 
-      json resJson;
       resJson["data"] = json::object();
-      resJson["code"] = -1;
+
       resJson["msg"] = message;
       res.set_content(resJson.dump().data(), "application/json");
       /*
@@ -308,8 +318,8 @@ void HttpServerImpl::HandlerMultipartFormData(
   }
 }
 
-void HttpServerImpl::authentication(bool verifyStatus) {
-  m_verifyStatus = verifyStatus;
+void HttpServerImpl::authentication(uint32_t auth) {
+  m_auth = auth;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -332,7 +342,7 @@ std::shared_ptr<HttpSrv> defaultHttpServer() {
 }
 void destoryDefaultHttpServer() {
   if (pDefaultHttpServer != nullptr) {
-        pDefaultHttpServer=nullptr;
+    pDefaultHttpServer = nullptr;
   }
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -342,7 +352,7 @@ void routerTrace(std::string method, std::string host, std::string proto,
                  std::map<std::string, std::string> headers,
                  std::vector<std::string> matches,
                  std::map<std::string, std::string> form, std::string body) {
-    /*
+  /*
   LogTrace("######################request###########################");
   LogTrace("method:{}", method);
   LogTrace("host:{}", host);
@@ -356,7 +366,7 @@ void routerTrace(std::string method, std::string host, std::string proto,
   }
   //LogTrace("header");
   for (auto iter = headers.begin(); iter != headers.end(); iter++) {
-   // LogTrace("  {}{}{}", iter->first, ":", iter->second);
+    // LogTrace("  {}{}{}", iter->first, ":", iter->second);
   }
   //LogTrace("matche");
   for (auto iter = matches.begin(); iter != matches.end(); iter++) {
@@ -369,4 +379,4 @@ void routerTrace(std::string method, std::string host, std::string proto,
   //LogTrace("body:{}", body);
   //LogTrace("#######################end##########################");
 }
-}  // namespace https
+}  // namespace Https
