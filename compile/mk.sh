@@ -187,6 +187,21 @@ else
 			fi
 		fi
 	done
+	for file in Release/*.exe
+	do
+		if [ -x $file ]
+		then
+			if [[ $file != bin/Test.exe && $file != bin/echoWorker.exe ]]
+			then
+				echo "  "$file
+				filename=${file##*/}
+				cd Release 
+				./$filename
+				cd ..
+			fi
+		fi
+	done
+
 
 fi
 echo -e "  Testing end ..."

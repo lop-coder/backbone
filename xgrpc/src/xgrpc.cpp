@@ -1356,6 +1356,8 @@ class ServerRunImpl : public ServerRun {
   virtual bool Run(const std::string& server_address) {
     _builder.AddListeningPort(server_address,
                               grpc::InsecureServerCredentials());
+    _builder.SetMaxSendMessageSize(1024 * 1024 * 100);
+    _builder.SetMaxReceiveMessageSize(1024 * 1024 * 100);
     _builder.AddChannelArgument(GRPC_ARG_KEEPALIVE_TIME_MS, 10 * 60 * 1000);
     _builder.AddChannelArgument(GRPC_ARG_KEEPALIVE_TIMEOUT_MS, 20 * 1000);
     _builder.AddChannelArgument(GRPC_ARG_KEEPALIVE_PERMIT_WITHOUT_CALLS, 1);
