@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.17)
 # 声明目标文件
-set(Target https)
+set(Target logger)
 
 # 项目版本
 project(${Target} VERSION 1.0.1.0)
@@ -34,20 +34,16 @@ include_directories(${fmt_INCLUDE_DIR})
 find_package(nlohmann_json REQUIRED)
 include_directories(${nlohmann_json_INCLUDE_DIRS})
 
-# cxxopts
-find_package(cxxopts REQUIRED)
-include_directories(${cxxopts_INCLUDE_DIR})
+# spdlog
+find_package(spdlog REQUIRED)
+include_directories(${spdlog_INCLUDE_DIR})
 
-# nlohmann_json_schema_validator
-find_package(nlohmann_json_schema_validator REQUIRED)
-include_directories(${nlohmann_json_schema_validator_INCLUDE_DIR})
 
-# hwinfo
-find_package(hwinfo REQUIRED)
-include_directories(${hwinfo_INCLUDE_DIR})
+# LOGGER_DLL_EXPORTS
+add_compile_definitions(LOGGER_DLL_EXPORTS)
 
-# HTTPS_DLL_EXPORTS
-add_compile_definitions(HTTPS_DLL_EXPORTS)
+add_compile_definitions(SPDLOG_FMT_EXTERNAL)
+add_compile_definitions(_HAS_AUTO_PTR_ETC=1)
 
 # LEAK_DETECTOR
 #set (LEAK_DETECTOR_CHECK 10)
@@ -84,11 +80,13 @@ endif()
 # 添加头文件
 #add_header_recursively(${CMAKE_CURRENT_SOURCE_DIR}/include)
 #add_header_recursively(${CMAKE_CURRENT_SOURCE_DIR}/src)
+add_header_recursively(${CMAKE_CURRENT_SOURCE_DIR}/include/)
+set(SOURCE ${SOURCE} ${CMAKE_CURRENT_SOURCE_DIR}/src/backward.hpp)
 
 # 添加源文件
-set(SOURCE ${SOURCE} ${CMAKE_CURRENT_LIST_DIR}/src/https.cpp)
-set(SOURCE ${SOURCE} ${CMAKE_CURRENT_LIST_DIR}/src/httplib.h)
-set(SOURCE ${SOURCE} ${CMAKE_CURRENT_LIST_DIR}/include/https.h)
+set(SOURCE ${SOURCE} ${CMAKE_CURRENT_SOURCE_DIR}/src/logger.cpp)
+set(SOURCE ${SOURCE} ${CMAKE_CURRENT_SOURCE_DIR}/src/backward_wrapper.cpp)
+
 
 
 # 添加conanfile
@@ -99,21 +97,16 @@ set(SOURCE ${SOURCE} ${CMAKE_CURRENT_LIST_DIR}/config.h.in)
 # 指定生成对象依赖的源文件
 add_library(${Target} SHARED ${SOURCE})
 
-#
-#add_executable(${Target}-client  ${CMAKE_CURRENT_LIST_DIR}/src/http-client.cpp )
-add_executable(${Target}-server
-    ${CMAKE_CURRENT_LIST_DIR}/src/http-server.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/schema.cpp
-)
-# 指定生成对象的依赖库
-target_link_libraries(${Target} PRIVATE ${cxxopts_LIBRARIES} ${fmt_LIBRARIES}  ${nlohmann_json_LIBRARIES})
+add_executable(${Target}-demo  ${CMAKE_CURRENT_LIST_DIR}/src/main.cpp )
 
-target_link_libraries(${Target}-server PRIVATE ${Target}
-    ${cxxopts_LIBRARIES}
+# 指定生成对象的依赖库
+target_link_libraries(${Target} PRIVATE ${spdlog_LIBRARIES} ${fmt_LIBRARIES}  ${nlohmann_json_LIBRARIES})
+
+target_link_libraries(${Target}-demo PRIVATE ${Target}
+    ${spdlog_LIBRARIES}
     ${fmt_LIBRARIES}
-    ${nlohmann_json_LIBRARIES}
-    ${nlohmann_json_schema_validator_LIBRARIES}
-    ${hwinfo_LIBRARIES})
+    ${nlohmann_json_LIBRARIES})
+
 # 指定安装路径
 install(
   TARGETS ${Target}
@@ -122,10 +115,11 @@ install(
 )
 
 install(
-  TARGETS ${Target}-server
+  TARGETS ${Target}-demo
   DESTINATION
     ${CMAKE_CURRENT_SOURCE_DIR}/../../output/${CMAKE_SYSTEM_NAME}/${CMAKE_BUILD_TYPE}/${TargetArch}/${Target}/bin
 )
+
 # 添加子路径
 if(WITH_TEST)
   add_subdirectory(test)
