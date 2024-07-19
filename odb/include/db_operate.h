@@ -23,9 +23,11 @@ class DBBaseOperate {
   virtual void setPassword(DBPtr const& db);
   virtual void tryPassword(DBPtr const& db);
   virtual void setSchema(DBPtr const& db);
+  virtual void checkTable(DBPtr const& db);
   virtual void loadExtension(DBPtr const& db);
   virtual void installTrigger(DBPtr const& db);
   virtual void setOptimization(DBPtr const& db);
+  virtual void migrate(DBPtr const& db);
 };
 }  // namespace DBAccess
 
